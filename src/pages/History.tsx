@@ -152,7 +152,7 @@ const History: React.FC = () => {
                       type="primary"
                       onClick={() => window.open('#/help/render-history', '_blank')}
                     >
-                      Read More
+                      How do I find my sitemap?
                     </Button>
                     <Button
                       type="text"
