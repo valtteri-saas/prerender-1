@@ -2,22 +2,27 @@ import React, { useState } from 'react';
 import {
   Layout,
   Typography,
+  Card,
+  Space,
   Button,
   Table,
-  Space,
-  Switch,
   Tag,
+  Select,
+  DatePicker,
+  Row,
+  Col,
+  Divider,
+  Alert,
   Tooltip,
   Input,
-  Card,
-  Alert,
   Modal,
   Form,
   Radio,
-  Select,
   Dropdown,
+  Switch,
 } from 'antd';
 import {
+  ReloadOutlined,
   PlusOutlined,
   SearchOutlined,
   DownloadOutlined,
@@ -36,11 +41,11 @@ import {
   InfoCircleOutlined,
   CloseOutlined,
   MoreOutlined,
-  ReloadOutlined,
 } from '@ant-design/icons';
 import { Container } from '../components/Container';
 
 const { Title, Text, Paragraph } = Typography;
+const { RangePicker } = DatePicker;
 
 interface SitemapData {
   key: string;
@@ -70,7 +75,9 @@ const Sitemaps: React.FC = () => {
     if (diffInSeconds < 60) return 'just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)}w ago`;
+    return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
   };
 
   // Function to format future relative time
@@ -90,7 +97,7 @@ const Sitemaps: React.FC = () => {
       key: '1',
       status: true,
       url: 'https://example.com/sitemap.xml',
-      createdAt: '2024-03-01',
+      createdAt: '2024-03-01 15:30:00',
       revisitInterval: '24 hours',
       deviceCompatibility: ['desktop', 'mobile'],
       lastVisitedAt: '2024-03-15 10:30:00',
@@ -102,7 +109,7 @@ const Sitemaps: React.FC = () => {
       key: '2',
       status: true,
       url: 'https://example.com/blog-sitemap.xml',
-      createdAt: '2024-03-02',
+      createdAt: '2024-03-02 09:15:00',
       revisitInterval: '12 hours',
       deviceCompatibility: ['desktop'],
       lastVisitedAt: '2024-03-15 12:30:00',
@@ -122,6 +129,19 @@ const Sitemaps: React.FC = () => {
         return <CloseCircleOutlined style={{ color: '#f5222d' }} />;
       default:
         return <QuestionCircleOutlined />;
+    }
+  };
+
+  const getHealthText = (health: string) => {
+    switch (health) {
+      case 'healthy':
+        return 'Healthy';
+      case 'warning':
+        return 'Warning';
+      case 'error':
+        return 'Error';
+      default:
+        return 'Unknown';
     }
   };
 
@@ -174,6 +194,11 @@ const Sitemaps: React.FC = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 120,
+      render: (timestamp: string) => (
+        <Tooltip title={timestamp}>
+          <span>{getRelativeTime(timestamp)}</span>
+        </Tooltip>
+      ),
     },
     {
       title: () => (
@@ -265,10 +290,13 @@ const Sitemaps: React.FC = () => {
       ),
       dataIndex: 'health',
       key: 'health',
-      width: 100,
+      width: 120,
       render: (health: string) => (
         <Tooltip title={getHealthTooltip(health)}>
-          {getHealthIcon(health)}
+          <Space>
+            {getHealthIcon(health)}
+            <span>{getHealthText(health)}</span>
+          </Space>
         </Tooltip>
       ),
     },
