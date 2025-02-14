@@ -119,9 +119,9 @@ const History: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <Title level={2}>Render History</Title>
-              <Text type="secondary">
+              <Paragraph type="secondary">
                 View render history and performance
-              </Text>
+              </Paragraph>
             </div>
             <Space>
               <Tooltip title="Only the last 24h is available">
