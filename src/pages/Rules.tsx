@@ -14,6 +14,7 @@ import {
   Input,
   Radio,
   Alert,
+  Dropdown,
 } from 'antd';
 import {
   PlusOutlined,
@@ -22,6 +23,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CloseOutlined,
+  MoreOutlined,
 } from '@ant-design/icons';
 import { Container } from '../components/Container';
 
@@ -105,12 +107,38 @@ const Rules: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
+      width: 60,
       render: (_: any, record: any) => (
         !record.isSystem && (
-          <Space size={8}>
-            <Button type="text" icon={<EditOutlined />} />
-            <Button type="text" danger icon={<DeleteOutlined />} />
-          </Space>
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'edit',
+                  label: 'Edit Rule',
+                  icon: <EditOutlined />,
+                  onClick: () => console.log('Edit rule:', record.name),
+                },
+                {
+                  type: 'divider',
+                },
+                {
+                  key: 'delete',
+                  label: 'Delete',
+                  icon: <DeleteOutlined />,
+                  danger: true,
+                  onClick: () => console.log('Delete rule:', record.name),
+                },
+              ],
+            }}
+            trigger={['click']}
+          >
+            <Button
+              type="text"
+              icon={<MoreOutlined />}
+              style={{ width: 32, height: 32, padding: 0 }}
+            />
+          </Dropdown>
         )
       ),
     },

@@ -13,6 +13,7 @@ import {
   Col,
   Divider,
   Alert,
+  Tooltip,
 } from 'antd';
 import {
   ReloadOutlined,
@@ -115,11 +116,25 @@ const History: React.FC = () => {
     <Layout.Content style={{ padding: 24 }}>
       <Container>
         <Space direction="vertical" size={24} style={{ width: '100%' }}>
-          <div>
-            <Title level={2}>Render History</Title>
-            <Paragraph type="secondary">
-              View render history and performance in the last 24 hours
-            </Paragraph>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <Title level={2}>Render History</Title>
+              <Text type="secondary">
+                View render history and performance
+              </Text>
+            </div>
+            <Space>
+              <Tooltip title="Only the last 24h is available">
+                <Select
+                  value="last-day"
+                  disabled
+                  style={{ width: 120 }}
+                  options={[
+                    { value: 'last-day', label: 'Last day' },
+                  ]}
+                />
+              </Tooltip>
+            </Space>
           </div>
 
           {showHistoryGuide && (

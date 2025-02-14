@@ -14,6 +14,7 @@ import {
   Alert,
   Row,
   Col,
+  Dropdown,
 } from 'antd';
 import {
   PlayCircleOutlined,
@@ -30,13 +31,14 @@ import {
   ArrowUpOutlined,
   DeleteOutlined,
   CloseOutlined,
+  MoreOutlined,
 } from '@ant-design/icons';
 import { Container } from '../components/Container';
 
 const { Title, Text, Paragraph } = Typography;
 
 const Queue: React.FC = () => {
-  const [queueFilter, setQueueFilter] = useState<'all' | 'normal' | 'priority'>('all');
+  const [queueFilter, setQueueFilter] = useState<'all' | 'automatic' | 'priority'>('all');
   const [showQueueGuide, setShowQueueGuide] = useState(true);
 
   const queuedURLs = [
@@ -92,7 +94,7 @@ const Queue: React.FC = () => {
       render: (priority: string) => (
         <Tag icon={priority === 'high' ? <ThunderboltOutlined /> : <FieldTimeOutlined />} 
             color={priority === 'high' ? 'error' : 'default'}>
-          {priority === 'high' ? 'Priority' : 'Normal'}
+          {priority === 'high' ? 'Priority' : 'Automatic'}
         </Tag>
       ),
     },
@@ -154,22 +156,38 @@ const Queue: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 120,
-      render: (_, record: any) => (
-        <Space>
-          {record.status === 'queued' && (
-            <Tooltip title="Start Processing">
-              <Button type="text" icon={<PlayCircleOutlined />} />
-            </Tooltip>
-          )}
-          <Popconfirm
-            title="Remove from queue?"
-            description="This will remove the URL from the queue without affecting its cached content."
-            onConfirm={() => console.log('Removed from queue')}
-          >
-            <Button type="text" danger icon={<CloseCircleOutlined />} />
-          </Popconfirm>
-        </Space>
+      width: 60,
+      render: (_: any, record: any) => (
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: 'start',
+                label: 'Start Processing',
+                icon: <PlayCircleOutlined />,
+                disabled: record.status === 'caching',
+                onClick: () => console.log('Start processing:', record.url),
+              },
+              {
+                type: 'divider',
+              },
+              {
+                key: 'remove',
+                label: 'Remove from Queue',
+                icon: <DeleteOutlined />,
+                danger: true,
+                onClick: () => console.log('Remove from queue:', record.url),
+              },
+            ],
+          }}
+          trigger={['click']}
+        >
+          <Button
+            type="text"
+            icon={<MoreOutlined />}
+            style={{ width: 32, height: 32, padding: 0 }}
+          />
+        </Dropdown>
       ),
     },
   ];
@@ -189,11 +207,11 @@ const Queue: React.FC = () => {
         <Tooltip title="Automatic caching">
           <Space>
             <ClockCircleOutlined />
-            Normal
+            Automatic
           </Space>
         </Tooltip>
       ),
-      value: 'normal',
+      value: 'automatic',
     },
     {
       label: (
@@ -311,7 +329,7 @@ const Queue: React.FC = () => {
                   <Button icon={<ReloadOutlined />}>Refresh</Button>
                   <Popconfirm
                     title="Clear priority queue?"
-                    description="This will remove all URLs from the priority queue. Normal queue items will not be affected."
+                    description="This will remove all URLs from the priority queue. Automatic queue items will not be affected."
                     onConfirm={() => console.log('Priority queue cleared')}
                   >
                     <Button icon={<DeleteOutlined />}>

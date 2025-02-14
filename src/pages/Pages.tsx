@@ -11,15 +11,19 @@ import {
   Table,
   Tag,
   Alert,
+  Dropdown,
 } from 'antd';
 import {
   ReloadOutlined,
-  SettingOutlined,
   PlusOutlined,
   InfoCircleOutlined,
   ClearOutlined,
   MobileOutlined,
   CloseOutlined,
+  MoreOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 import { Container } from '../components/Container';
 
@@ -28,6 +32,19 @@ const { Title, Text, Paragraph } = Typography;
 const Pages: React.FC = () => {
   const [showOldPages, setShowOldPages] = useState(false);
   const [showPagesGuide, setShowPagesGuide] = useState(true);
+
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)}w ago`;
+    return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
+  };
 
   const cachedPages = [
     {
@@ -39,7 +56,7 @@ const Pages: React.FC = () => {
       state: 'Cached',
       firstSeen: '2024-01-15',
       source: 'Sitemap',
-      lastCrawled: '2024-01-16',
+      lastCrawled: '2024-01-16 14:30:00',
     },
   ];
 
@@ -110,18 +127,58 @@ const Pages: React.FC = () => {
       title: 'Last Crawled',
       dataIndex: 'lastCrawled',
       key: 'lastCrawled',
+      render: (timestamp: string) => (
+        <Tooltip title={timestamp}>
+          <Text>{formatRelativeTime(timestamp)}</Text>
+        </Tooltip>
+      ),
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: () => (
-        <Button
-          type="text"
-          icon={<ReloadOutlined />}
-          size="small"
+      width: 60,
+      render: (_: any, record: any) => (
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: 'recache',
+                label: 'Recache',
+                icon: <ReloadOutlined />,
+                onClick: () => console.log('Recache page:', record.url),
+              },
+              {
+                key: 'audit',
+                label: 'Audit',
+                icon: <AuditOutlined />,
+                onClick: () => console.log('Audit page:', record.url),
+              },
+              {
+                key: 'view',
+                label: 'View Cached Page',
+                icon: <EyeOutlined />,
+                onClick: () => console.log('View cached page:', record.url),
+              },
+              {
+                type: 'divider',
+              },
+              {
+                key: 'delete',
+                label: 'Delete',
+                icon: <DeleteOutlined />,
+                danger: true,
+                onClick: () => console.log('Delete page:', record.url),
+              },
+            ],
+          }}
+          trigger={['click']}
         >
-          Recache
-        </Button>
+          <Button
+            type="text"
+            icon={<MoreOutlined />}
+            style={{ width: 32, height: 32, padding: 0 }}
+          />
+        </Dropdown>
       ),
     },
   ];
@@ -190,7 +247,6 @@ const Pages: React.FC = () => {
                   <Button type="primary" icon={<PlusOutlined />}>
                     Add URL
                   </Button>
-                  <Button icon={<SettingOutlined />}>Cache Settings</Button>
                   <Button icon={<ClearOutlined />}>Clear Cache</Button>
                 </Space>
               </Space>

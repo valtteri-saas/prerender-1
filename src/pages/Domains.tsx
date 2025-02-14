@@ -19,6 +19,8 @@ import {
   Switch,
   Divider,
   Select,
+  Slider,
+  Dropdown,
 } from 'antd';
 import {
   PlusOutlined,
@@ -34,6 +36,9 @@ import {
   EditOutlined,
   SyncOutlined,
   CloseOutlined,
+  FieldTimeOutlined,
+  MoreOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { Container } from '../components/Container';
 
@@ -46,6 +51,7 @@ interface DomainData {
   urlCount: number;
   integrationStatus: 'active' | 'pending' | 'error';
   errorMessage?: string;
+  cacheExpiration: number;
   notFoundStatus: {
     enabled: boolean;
     reachable: boolean;
@@ -62,19 +68,44 @@ interface DomainData {
   };
 }
 
-const Domains: React.FC = () => {
+const Domains = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showGuide, setShowGuide] = useState(true);
   const [form] = Form.useForm();
 
-  // Mock data for the domains
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)}w ago`;
+    return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
+  };
+
+  const formatFutureRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((date.getTime() - now.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'in a moment';
+    if (diffInSeconds < 3600) return `in ${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `in ${Math.floor(diffInSeconds / 3600)}h`;
+    if (diffInSeconds < 604800) return `in ${Math.floor(diffInSeconds / 86400)}d`;
+    return `in ${Math.floor(diffInSeconds / 604800)}w`;
+  };
+
   const domains: DomainData[] = [
     {
       key: '1',
       domain: 'example.com',
-      createdAt: '2024-03-01',
+      createdAt: '2024-03-01 10:30:00',
       urlCount: 1250,
       integrationStatus: 'active',
+      cacheExpiration: 24,
       notFoundStatus: {
         enabled: true,
         reachable: true,
@@ -100,10 +131,11 @@ const Domains: React.FC = () => {
     {
       key: '2',
       domain: 'test-site.com',
-      createdAt: '2024-03-02',
+      createdAt: '2024-03-02 15:45:00',
       urlCount: 850,
       integrationStatus: 'error',
       errorMessage: 'Integration failed - check domain configuration',
+      cacheExpiration: 72,
       notFoundStatus: {
         enabled: true,
         reachable: true,
@@ -127,6 +159,15 @@ const Domains: React.FC = () => {
       },
     },
   ];
+
+  const formatDuration = (hours: number) => {
+    if (hours < 24) {
+      return `${hours} hours`;
+    } else {
+      const days = Math.floor(hours / 24);
+      return `${days} days`;
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -175,89 +216,118 @@ const Domains: React.FC = () => {
       <div style={{ padding: '0 48px 24px' }}>
         <Row gutter={[24, 24]}>
           <Col span={16}>
-            <Card title="404 Status Details" size="small">
-              <Row gutter={[16, 16]}>
-                <Col span={6}>
-                  <Space direction="vertical" size={4}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>Monitoring Status</Text>
-                    <Space>
-                      <Switch size="small" checked={status.enabled} />
-                      <Text>{status.enabled ? 'Enabled' : 'Disabled'}</Text>
+            <Space direction="vertical" size={24} style={{ width: '100%' }}>
+              <Card title="404 Status Details" size="small">
+                <Row gutter={[16, 16]}>
+                  <Col span={6}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Monitoring Status</Text>
+                      <Space>
+                        <Switch size="small" checked={status.enabled} />
+                        <Text>{status.enabled ? 'Enabled' : 'Disabled'}</Text>
+                      </Space>
                     </Space>
-                  </Space>
-                </Col>
-                <Col span={6}>
-                  <Space direction="vertical" size={4}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>Check Frequency</Text>
-                    <Space>
-                      <ClockCircleOutlined />
-                      <Text>{status.checkInterval}</Text>
+                  </Col>
+                  <Col span={6}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Check Frequency</Text>
+                      <Space>
+                        <ClockCircleOutlined />
+                        <Text>{status.checkInterval}</Text>
+                      </Space>
                     </Space>
-                  </Space>
-                </Col>
-                <Col span={6}>
-                  <Space direction="vertical" size={4}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>Last Check</Text>
-                    <Text>{status.lastChecked}</Text>
-                  </Space>
-                </Col>
-                <Col span={6}>
-                  <Space direction="vertical" size={4}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>Next Check</Text>
-                    <Text>{status.nextCheck}</Text>
-                  </Space>
-                </Col>
-              </Row>
+                  </Col>
+                  <Col span={6}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Last Check</Text>
+                      <Tooltip title={status.lastChecked}>
+                        <Text>{formatRelativeTime(status.lastChecked)}</Text>
+                      </Tooltip>
+                    </Space>
+                  </Col>
+                  <Col span={6}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Next Check</Text>
+                      <Tooltip title={status.nextCheck}>
+                        <Text>{formatFutureRelativeTime(status.nextCheck)}</Text>
+                      </Tooltip>
+                    </Space>
+                  </Col>
+                </Row>
+              </Card>
 
-              <Divider style={{ margin: '16px 0' }} />
+              <Card title="Integration Status Details" size="small">
+                <Space direction="vertical" style={{ width: '100%' }} size={16}>
+                  <Space>
+                    {getStatusIcon(record.integrationStatus)}
+                    <Text strong>{getStatusText(record.integrationStatus)}</Text>
+                  </Space>
 
-              <Title level={5}>Recent History</Title>
-              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                {status.history.map((item, index) => (
-                  <div 
-                    key={index} 
-                    style={{ 
-                      padding: '8px 0',
-                      borderBottom: index !== status.history.length - 1 ? '1px solid #f0f0f0' : 'none'
-                    }}
-                  >
-                    <Space align="start">
-                      {item.status === 'success' ? (
-                        <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                      ) : (
-                        <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
-                      )}
-                      <div>
-                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>{item.timestamp}</Text>
-                        <Text>{item.message}</Text>
-                      </div>
+                  {record.integrationStatus === 'error' && (
+                    <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                      <Alert
+                        message="Integration Error Detected"
+                        description={
+                          <Space direction="vertical" size={16}>
+                            <Text>
+                              We detected an issue with your domain integration:
+                            </Text>
+                            <Text type="secondary">
+                              {record.errorMessage}
+                            </Text>
+                            <Space direction="vertical" size={8}>
+                              <Text strong>Recommended actions:</Text>
+                              <ul style={{ margin: 0, paddingLeft: 16 }}>
+                                <li>Check your domain configuration</li>
+                                <li>Verify DNS settings are correct</li>
+                                <li>Ensure your website is accessible</li>
+                              </ul>
+                            </Space>
+                            <Space style={{ paddingTop: 8 }}>
+                              <Button size="small" type="primary" icon={<SyncOutlined />}>
+                                Retry Integration
+                              </Button>
+                              <Button 
+                                size="small" 
+                                icon={<QuestionCircleOutlined />}
+                                onClick={() => window.open('#/help/integration-errors', '_blank')}
+                              >
+                                View Troubleshooting Guide
+                              </Button>
+                            </Space>
+                          </Space>
+                        }
+                        type="error"
+                        showIcon
+                      />
                     </Space>
-                  </div>
-                ))}
-              </div>
-            </Card>
+                  )}
+                </Space>
+              </Card>
+            </Space>
           </Col>
           <Col span={8}>
-            <Card title="Integration Status" size="small">
+            <Card title="Cache Expiration" size="small">
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Space>
-                  {getStatusIcon(record.integrationStatus)}
-                  <Text strong>{getStatusText(record.integrationStatus)}</Text>
-                </Space>
-
-                {record.integrationStatus === 'error' && (
-                  <Alert
-                    message="Integration Error"
-                    description={record.errorMessage}
-                    type="error"
-                    showIcon
-                    action={
-                      <Button size="small" icon={<SyncOutlined />}>
-                        Retry
-                      </Button>
-                    }
+                <div style={{ padding: '0 6px' }}>
+                  <Row justify="space-between">
+                    <Col>6 hours</Col>
+                    <Col>90 days</Col>
+                  </Row>
+                  <Slider
+                    min={6}
+                    max={2160}
+                    defaultValue={record.cacheExpiration}
+                    tooltip={{ formatter: formatDuration }}
+                    included={true}
+                    style={{ marginBottom: 32 }}
                   />
-                )}
+                </div>
+                <Alert
+                  message="Pages will be automatically recached after this duration"
+                  type="info"
+                  showIcon
+                />
               </Space>
             </Card>
           </Col>
@@ -279,10 +349,15 @@ const Domains: React.FC = () => {
       ),
     },
     {
-      title: 'Added On',
+      title: 'Added',
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 120,
+      render: (timestamp: string) => (
+        <Tooltip title={timestamp}>
+          <Text>{formatRelativeTime(timestamp)}</Text>
+        </Tooltip>
+      ),
     },
     {
       title: () => (
@@ -303,6 +378,25 @@ const Domains: React.FC = () => {
     {
       title: () => (
         <Space>
+          <span>Cache Expiration</span>
+          <Tooltip title="How long pages are cached before automatic recaching">
+            <InfoCircleOutlined />
+          </Tooltip>
+        </Space>
+      ),
+      dataIndex: 'cacheExpiration',
+      key: 'cacheExpiration',
+      width: 140,
+      render: (hours: number) => (
+        <Space>
+          <FieldTimeOutlined />
+          <span>{formatDuration(hours)}</span>
+        </Space>
+      ),
+    },
+    {
+      title: () => (
+        <Space>
           <span>Integration</span>
           <Tooltip title="Overall integration status with our services">
             <InfoCircleOutlined />
@@ -315,11 +409,6 @@ const Domains: React.FC = () => {
         <Space>
           {getStatusIcon(record.integrationStatus)}
           <span>{getStatusText(record.integrationStatus)}</span>
-          {record.errorMessage && (
-            <Tooltip title={record.errorMessage}>
-              <InfoCircleOutlined />
-            </Tooltip>
-          )}
         </Space>
       ),
     },
@@ -344,16 +433,37 @@ const Domains: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 120,
+      width: 60,
       render: (_: any, record: DomainData) => (
-        <Space>
-          <Tooltip title="Edit settings">
-            <Button type="text" icon={<EditOutlined />} />
-          </Tooltip>
-          <Tooltip title="Remove domain">
-            <Button type="text" danger icon={<DeleteOutlined />} />
-          </Tooltip>
-        </Space>
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: 'edit',
+                label: 'Edit Settings',
+                icon: <EditOutlined />,
+                onClick: () => console.log('Edit domain:', record.domain),
+              },
+              {
+                type: 'divider',
+              },
+              {
+                key: 'delete',
+                label: 'Remove Domain',
+                icon: <DeleteOutlined />,
+                danger: true,
+                onClick: () => console.log('Delete domain:', record.domain),
+              },
+            ],
+          }}
+          trigger={['click']}
+        >
+          <Button
+            type="text"
+            icon={<MoreOutlined />}
+            style={{ width: 32, height: 32, padding: 0 }}
+          />
+        </Dropdown>
       ),
     },
   ];

@@ -15,6 +15,7 @@ import {
   Form,
   Radio,
   Select,
+  Dropdown,
 } from 'antd';
 import {
   PlusOutlined,
@@ -34,6 +35,8 @@ import {
   ClockCircleOutlined,
   InfoCircleOutlined,
   CloseOutlined,
+  MoreOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { Container } from '../components/Container';
 
@@ -272,25 +275,43 @@ const Sitemaps: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 120,
+      width: 60,
       render: (_: any, record: SitemapData) => (
-        <Space>
-          <Tooltip title="View Pages">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => console.log('View sitemap:', record.url)}
-            />
-          </Tooltip>
-          <Tooltip title="Remove">
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => console.log('Delete sitemap:', record.url)}
-            />
-          </Tooltip>
-        </Space>
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: 'view',
+                label: 'View Pages',
+                icon: <EyeOutlined />,
+                onClick: () => console.log('View sitemap:', record.url),
+              },
+              {
+                key: 'recache',
+                label: 'Recache',
+                icon: <ReloadOutlined />,
+                onClick: () => console.log('Recache sitemap:', record.url),
+              },
+              {
+                type: 'divider',
+              },
+              {
+                key: 'delete',
+                label: 'Delete',
+                icon: <DeleteOutlined />,
+                danger: true,
+                onClick: () => console.log('Delete sitemap:', record.url),
+              },
+            ],
+          }}
+          trigger={['click']}
+        >
+          <Button
+            type="text"
+            icon={<MoreOutlined />}
+            style={{ width: 32, height: 32, padding: 0 }}
+          />
+        </Dropdown>
       ),
     },
   ];

@@ -140,7 +140,7 @@ function App() {
 
   const settingsMenuItem: MenuProps['items'] = [
     {
-      key: 'Billing',
+      key: 'billing',
       icon: <CreditCardOutlined />,
       label: 'Billing',
     },
