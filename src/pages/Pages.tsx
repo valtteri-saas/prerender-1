@@ -116,7 +116,7 @@ const Pages: React.FC = () => {
       key: 'actions',
       render: () => (
         <Button
-          type="primary"
+          type="text"
           icon={<ReloadOutlined />}
           size="small"
         >

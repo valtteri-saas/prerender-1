@@ -118,7 +118,7 @@ const History: React.FC = () => {
           <div>
             <Title level={2}>Render History</Title>
             <Paragraph type="secondary">
-              View render history and performance
+              View render history and performance in the last 24 hours
             </Paragraph>
           </div>
 
@@ -203,11 +203,10 @@ const History: React.FC = () => {
             <div style={{ padding: '0 16px 16px' }}>
               <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                 <Space>
-                  <RangePicker />
                   <Select defaultValue="all" style={{ width: 120 }}>
                     <Select.Option value="all">All Status</Select.Option>
-                    <Select.Option value="success">Success</Select.Option>
-                    <Select.Option value="failed">Failed</Select.Option>
+                    <Select.Option value="success">200</Select.Option>
+                    <Select.Option value="failed">404</Select.Option>
                   </Select>
                   <Select defaultValue="all" style={{ width: 120 }}>
                     <Select.Option value="all">All Devices</Select.Option>

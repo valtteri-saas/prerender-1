@@ -352,7 +352,7 @@ const Sitemaps: React.FC = () => {
               }
               description={
                 <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                  <Text>Improve your site's visibility by loading sitemaps into Prerender. Our system fetches and prepares pages for search engines, enhancing SEO performance. Now with Google Search Console integration for seamless management.</Text>
+                  <Text>Improve your site's visibility by loading sitemaps into Prerender. Our system fetches and prepares pages for search engines, enhancing SEO performance.</Text>
                   <Space size={16} style={{ marginTop: 40 }}>
                     <Button
                       type="primary"

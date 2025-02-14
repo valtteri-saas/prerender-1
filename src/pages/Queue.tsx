@@ -174,6 +174,40 @@ const Queue: React.FC = () => {
     },
   ];
 
+  const segmentedOptions = [
+    {
+      label: (
+        <Space>
+          <FieldTimeOutlined />
+          All
+        </Space>
+      ),
+      value: 'all',
+    },
+    {
+      label: (
+        <Tooltip title="Automatic caching">
+          <Space>
+            <ClockCircleOutlined />
+            Normal
+          </Space>
+        </Tooltip>
+      ),
+      value: 'normal',
+    },
+    {
+      label: (
+        <Tooltip title="Manually added">
+          <Space>
+            <ThunderboltOutlined />
+            Priority
+          </Space>
+        </Tooltip>
+      ),
+      value: 'priority',
+    },
+  ];
+
   return (
     <Layout.Content style={{ padding: 24 }}>
       <Container>
@@ -268,39 +302,11 @@ const Queue: React.FC = () => {
                 <Segmented
                   value={queueFilter}
                   onChange={(value) => setQueueFilter(value as typeof queueFilter)}
-                  options={[
-                    {
-                      label: (
-                        <Space>
-                          <FieldTimeOutlined />
-                          All
-                        </Space>
-                      ),
-                      value: 'all',
-                    },
-                    {
-                      label: (
-                        <Space>
-                          <ClockCircleOutlined />
-                          Normal
-                        </Space>
-                      ),
-                      value: 'normal',
-                    },
-                    {
-                      label: (
-                        <Space>
-                          <ThunderboltOutlined />
-                          Priority
-                        </Space>
-                      ),
-                      value: 'priority',
-                    },
-                  ]}
+                  options={segmentedOptions}
                 />
                 <Space>
                   <Button type="primary" icon={<PlusOutlined />}>
-                    Add URL
+                    Add to Priority Queue
                   </Button>
                   <Button icon={<ReloadOutlined />}>Refresh</Button>
                   <Popconfirm
