@@ -18,6 +18,7 @@ import {
   TrophyOutlined,
   TeamOutlined,
   CreditCardOutlined,
+  ReadOutlined,
 
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Avatar, Badge, Dropdown, Space } from 'antd';
@@ -139,6 +140,11 @@ function App() {
   ];
 
   const settingsMenuItem: MenuProps['items'] = [
+    {
+      key: 'help',
+      icon: <ReadOutlined />,
+      label: 'Help',
+    },
     {
       key: 'billing',
       icon: <CreditCardOutlined />,
