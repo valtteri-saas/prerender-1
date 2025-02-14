@@ -407,7 +407,7 @@ const Sitemaps: React.FC = () => {
                       type="primary"
                       onClick={() => window.open('#/help/sitemaps', '_blank')}
                     >
-                      Discover how to effectively use Prerender
+                      How do I find my sitemap?
                     </Button>
                     <Button
                       type="text"
